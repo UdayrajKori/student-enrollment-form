@@ -178,13 +178,17 @@ const PersonalDetailsSection = ({ data, onChange, errors = [] }: PersonalDetails
         </div>
 
         <div className="form-group">
-          <label className="form-label">Place of Birth (City/District)</label>
+          <label className="form-label">
+            Place of Birth (City/District)
+            <span className="required">*</span>
+          </label>
           <input
             type="text"
             name="placeOfBirth"
             value={data.placeOfBirth || ''}
             onChange={handleInputChange}
             placeholder="Enter city/district"
+            required
             className={`form-input ${hasStepFieldError(errors, stepKey, 'placeOfBirth') ? 'error' : ''}`}
           />
           {hasStepFieldError(errors, stepKey, 'placeOfBirth') && (

@@ -16,7 +16,7 @@ export const PersonalDetailsSchema = z.object({
   citizenshipIssueDistrict: z.string().optional().default('').refine(val => val.length > 0, 'Citizenship issue district is required'),
   dateOfBirth: z.string().optional().default('').refine(val => val.length > 0, 'Date of birth is required'),
   nationality: z.string().optional().default('').refine(val => val.length > 0, 'Nationality is required'),
-  placeOfBirth: z.string().optional().default(''),
+  placeOfBirth: z.string().optional().default('').refine(val => val.length > 0, 'Place of birth is required'),
   gender: z.string().optional().default('').refine(val => val.length > 0, 'Gender is required'),
   ethnicity: z.string().optional().default('').refine(val => val.length > 0, 'Ethnicity is required'),
   religion: z.string().optional().default('').refine(val => val.length > 0, 'Religion is required'),

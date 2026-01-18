@@ -52,7 +52,6 @@
 }
 
 .form-input:invalid {
-  border-color: #f44336;
 }
 
 .form-input:disabled {
