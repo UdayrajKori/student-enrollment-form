@@ -1,9 +1,9 @@
+import EnrollmentForm from './components/EnrollmentForm'
 
 function App() {
-
   return (
     <>
-      <h1>Student Enrollment Form</h1>
+      <EnrollmentForm />
     </>
   )
 }
