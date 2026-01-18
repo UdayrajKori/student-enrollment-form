@@ -1,13 +1,19 @@
 import type { ChangeEvent } from 'react';
 import type { AddressDetails } from '../../types';
+import ValidationErrorDisplay from '../ValidationErrorDisplay';
+import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
+import type { ValidationError } from '../../validation/utils';
 import { provinces, getDistrictsForProvince, getMunicipalitiesForDistrict } from '../../data/nepalData';
 
 interface AddressDetailsSectionProps {
   data: AddressDetails;
   onChange: (path: string, value: any) => void;
+  errors?: ValidationError[];
 }
 
-const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) => {
+const AddressDetailsSection = ({ data, onChange, errors = [] }: AddressDetailsSectionProps) => {
+  const stepKey = 'address';
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
@@ -54,13 +60,18 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
             value={permanentProvince}
             onChange={(e) => handleInputChange(e, 'permanent.province')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'permanent.province') ? 'error' : ''}`}
           >
             <option value="">-- Select Province --</option>
             {provinces.map(province => (
               <option key={province} value={province}>{province}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'permanent.province') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'permanent.province')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -73,13 +84,18 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
             onChange={(e) => handleInputChange(e, 'permanent.district')}
             disabled={!permanentProvince}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'permanent.district') ? 'error' : ''}`}
           >
             <option value="">-- Select District --</option>
             {permanentDistrics.map(district => (
               <option key={district} value={district}>{district}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'permanent.district') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'permanent.district')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -92,13 +108,18 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
             onChange={(e) => handleInputChange(e, 'permanent.municipality')}
             disabled={!permanentDistrict}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'permanent.municipality') ? 'error' : ''}`}
           >
             <option value="">-- Select Municipality --</option>
             {permanentMunicipalities.map(municipality => (
               <option key={municipality} value={municipality}>{municipality}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'permanent.municipality') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'permanent.municipality')} 
+            />
+          )}
         </div>
       </div>
 
@@ -116,8 +137,13 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
             min="1"
             max="32"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'permanent.wardNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'permanent.wardNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'permanent.wardNumber')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -131,8 +157,13 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
             onChange={(e) => handleInputChange(e, 'permanent.toleStreet')}
             placeholder="Enter tole or street name"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'permanent.toleStreet') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'permanent.toleStreet') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'permanent.toleStreet')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -142,8 +173,13 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
             value={data.permanent?.houseNumber || ''}
             onChange={(e) => handleInputChange(e, 'permanent.houseNumber')}
             placeholder="Enter house number"
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'permanent.houseNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'permanent.houseNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'permanent.houseNumber')} 
+            />
+          )}
         </div>
       </div>
 
@@ -168,53 +204,83 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
         <>
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Province</label>
+              <label className="form-label">
+                Province
+                <span className="required">*</span>
+              </label>
               <select
                 value={temporaryProvince}
                 onChange={(e) => handleInputChange(e, 'temporary.province')}
-                className="form-input"
+                required
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'temporary.province') ? 'error' : ''}`}
               >
                 <option value="">-- Select Province --</option>
                 {provinces.map(province => (
                   <option key={province} value={province}>{province}</option>
                 ))}
               </select>
+              {hasStepFieldError(errors, stepKey, 'temporary.province') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'temporary.province')} 
+                />
+              )}
             </div>
 
             <div className="form-group">
-              <label className="form-label">District</label>
+              <label className="form-label">
+                District
+                <span className="required">*</span>
+              </label>
               <select
                 value={temporaryDistrict}
                 onChange={(e) => handleInputChange(e, 'temporary.district')}
                 disabled={!temporaryProvince}
-                className="form-input"
+                required
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'temporary.district') ? 'error' : ''}`}
               >
                 <option value="">-- Select District --</option>
                 {temporaryDistricts.map(district => (
                   <option key={district} value={district}>{district}</option>
                 ))}
               </select>
+              {hasStepFieldError(errors, stepKey, 'temporary.district') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'temporary.district')} 
+                />
+              )}
             </div>
 
             <div className="form-group">
-              <label className="form-label">Municipality/VDC</label>
+              <label className="form-label">
+                Municipality/VDC
+                <span className="required">*</span>
+              </label>
               <select
                 value={data.temporary?.municipality || ''}
                 onChange={(e) => handleInputChange(e, 'temporary.municipality')}
                 disabled={!temporaryDistrict}
-                className="form-input"
+                required
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'temporary.municipality') ? 'error' : ''}`}
               >
                 <option value="">-- Select Municipality --</option>
                 {temporaryMunicipalities.map(municipality => (
                   <option key={municipality} value={municipality}>{municipality}</option>
                 ))}
               </select>
+              {hasStepFieldError(errors, stepKey, 'temporary.municipality') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'temporary.municipality')} 
+                />
+              )}
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Ward Number</label>
+              <label className="form-label">
+                Ward Number
+                <span className="required">*</span>
+              </label>
               <input
                 type="number"
                 value={data.temporary?.wardNumber || ''}
@@ -222,19 +288,34 @@ const AddressDetailsSection = ({ data, onChange }: AddressDetailsSectionProps) =
                 placeholder="Enter ward number"
                 min="1"
                 max="32"
-                className="form-input"
+                required
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'temporary.wardNumber') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'temporary.wardNumber') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'temporary.wardNumber')} 
+                />
+              )}
             </div>
 
             <div className="form-group">
-              <label className="form-label">Tole/Street</label>
+              <label className="form-label">
+                Tole/Street
+                <span className="required">*</span>
+              </label>
               <input
                 type="text"
                 value={data.temporary?.toleStreet || ''}
                 onChange={(e) => handleInputChange(e, 'temporary.toleStreet')}
                 placeholder="Enter tole or street name"
-                className="form-input"
+                required
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'temporary.toleStreet') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'temporary.toleStreet') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'temporary.toleStreet')} 
+                />
+              )}
             </div>
 
             <div className="form-group">

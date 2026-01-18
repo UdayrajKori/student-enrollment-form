@@ -1,5 +1,8 @@
 import type { ChangeEvent } from 'react';
 import type { AcademicDetails, AcademicQualification } from '../../types';
+import ValidationErrorDisplay from '../ValidationErrorDisplay';
+import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
+import type { ValidationError } from '../../validation/utils';
 import { 
   faculties, 
   getProgramsForFaculty, 
@@ -14,9 +17,12 @@ import {
 interface AcademicDetailsSectionProps {
   data: AcademicDetails;
   onChange: (path: string, value: any) => void;
+  errors?: ValidationError[];
 }
 
-const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps) => {
+const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetailsSectionProps) => {
+  const stepKey = 'academic';
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
@@ -77,13 +83,18 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             value={data.currentEnrollment?.faculty || ''}
             onChange={(e) => handleInputChange(e, 'currentEnrollment.faculty')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.faculty') ? 'error' : ''}`}
           >
             <option value="">-- Select Faculty --</option>
             {faculties.map(faculty => (
               <option key={faculty} value={faculty}>{faculty}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.faculty') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.faculty')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -96,13 +107,18 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             onChange={(e) => handleInputChange(e, 'currentEnrollment.program')}
             disabled={!data.currentEnrollment?.faculty}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.program') ? 'error' : ''}`}
           >
             <option value="">-- Select Program --</option>
             {programList.map(program => (
               <option key={program} value={program}>{program}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.program') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.program')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -114,13 +130,18 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             value={data.currentEnrollment?.courseLevel || ''}
             onChange={(e) => handleInputChange(e, 'currentEnrollment.courseLevel')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.courseLevel') ? 'error' : ''}`}
           >
             <option value="">-- Select Level --</option>
             {courseLevels.map(level => (
               <option key={level} value={level}>{level}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.courseLevel') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.courseLevel')} 
+            />
+          )}
         </div>
       </div>
 
@@ -134,13 +155,18 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             value={data.currentEnrollment?.academicYear || ''}
             onChange={(e) => handleInputChange(e, 'currentEnrollment.academicYear')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.academicYear') ? 'error' : ''}`}
           >
             <option value="">-- Select Year --</option>
             {academicYears.map(year => (
               <option key={year} value={year}>{year}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.academicYear') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.academicYear')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -152,13 +178,18 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             value={data.currentEnrollment?.semesterClass || ''}
             onChange={(e) => handleInputChange(e, 'currentEnrollment.semesterClass')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.semesterClass') ? 'error' : ''}`}
           >
             <option value="">-- Select Semester --</option>
             {semestersClasses.map(sem => (
               <option key={sem} value={sem}>{sem}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.semesterClass') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.semesterClass')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -170,13 +201,18 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             value={data.currentEnrollment?.section || ''}
             onChange={(e) => handleInputChange(e, 'currentEnrollment.section')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.section') ? 'error' : ''}`}
           >
             <option value="">-- Select Section --</option>
             {sections.map(section => (
               <option key={section} value={section}>{section}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.section') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.section')} 
+            />
+          )}
         </div>
       </div>
 
@@ -192,8 +228,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             onChange={(e) => handleInputChange(e, 'currentEnrollment.rollNumber')}
             placeholder="Enter roll number"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.rollNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.rollNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.rollNumber')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -207,8 +248,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             onChange={(e) => handleInputChange(e, 'currentEnrollment.registrationNumber')}
             placeholder="Enter registration number"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.registrationNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.registrationNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.registrationNumber')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -221,8 +267,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             value={data.currentEnrollment?.enrollDate || ''}
             onChange={(e) => handleInputChange(e, 'currentEnrollment.enrollDate')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.enrollDate') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'currentEnrollment.enrollDate') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'currentEnrollment.enrollDate')} 
+            />
+          )}
         </div>
       </div>
 
@@ -271,13 +322,18 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
                     value={qualification.qualification || ''}
                     onChange={(e) => handleQualificationChange(index, 'qualification', e.target.value)}
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousHistory.${index}.qualification`) ? 'error' : ''}`}
                   >
                     <option value="">-- Select Qualification --</option>
                     {qualifications.map(qual => (
                       <option key={qual} value={qual}>{qual}</option>
                     ))}
                   </select>
+                  {hasStepFieldError(errors, stepKey, `previousHistory.${index}.qualification`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousHistory.${index}.qualification`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -291,8 +347,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
                     onChange={(e) => handleQualificationChange(index, 'boardUniversity', e.target.value)}
                     placeholder="e.g., NEB, TU"
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousHistory.${index}.boardUniversity`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `previousHistory.${index}.boardUniversity`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousHistory.${index}.boardUniversity`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -306,8 +367,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
                     onChange={(e) => handleQualificationChange(index, 'institutionName', e.target.value)}
                     placeholder="Enter school/college name"
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousHistory.${index}.institutionName`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `previousHistory.${index}.institutionName`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousHistory.${index}.institutionName`)} 
+                    />
+                  )}
                 </div>
               </div>
 
@@ -325,8 +391,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
                     min="1900"
                     max={new Date().getFullYear()}
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousHistory.${index}.passedYear`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `previousHistory.${index}.passedYear`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousHistory.${index}.passedYear`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -340,8 +411,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
                     onChange={(e) => handleQualificationChange(index, 'divisionGPA', e.target.value)}
                     placeholder="e.g., 1st Division, 3.5 GPA"
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousHistory.${index}.divisionGPA`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `previousHistory.${index}.divisionGPA`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousHistory.${index}.divisionGPA`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -392,8 +468,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             accept=".pdf,.jpg,.jpeg,.png"
             onChange={(e) => handleFileChange(e, 'citizenshipFrontUpload')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipFrontUpload') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'citizenshipFrontUpload') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'citizenshipFrontUpload')} 
+            />
+          )}
           {getFileName(data.citizenshipFrontUpload) && (
             <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
               ✓ {getFileName(data.citizenshipFrontUpload)}
@@ -416,8 +497,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             accept=".pdf,.jpg,.jpeg,.png"
             onChange={(e) => handleFileChange(e, 'citizenshipBackUpload')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipBackUpload') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'citizenshipBackUpload') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'citizenshipBackUpload')} 
+            />
+          )}
           {getFileName(data.citizenshipBackUpload) && (
             <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
               ✓ {getFileName(data.citizenshipBackUpload)}
@@ -442,8 +528,13 @@ const AcademicDetailsSection = ({ data, onChange }: AcademicDetailsSectionProps)
             accept=".jpg,.jpeg,.png"
             onChange={(e) => handleFileChange(e, 'signatureUpload')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'signatureUpload') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'signatureUpload') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'signatureUpload')} 
+            />
+          )}
           {getFileName(data.signatureUpload) && (
             <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
               ✓ {getFileName(data.signatureUpload)}

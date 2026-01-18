@@ -1,12 +1,18 @@
 import type { ChangeEvent } from 'react';
 import type { Declaration } from '../../types';
+import ValidationErrorDisplay from '../ValidationErrorDisplay';
+import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
+import type { ValidationError } from '../../validation/utils';
 
 interface DeclarationSectionProps {
   data: Declaration;
   onChange: (path: string, value: any) => void;
+  errors?: ValidationError[];
 }
 
-const DeclarationSection = ({ data, onChange }: DeclarationSectionProps) => {
+const DeclarationSection = ({ data, onChange, errors = [] }: DeclarationSectionProps) => {
+  const stepKey = 'declaration';
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
@@ -63,6 +69,11 @@ const DeclarationSection = ({ data, onChange }: DeclarationSectionProps) => {
                   to the best of my knowledge. <strong>*</strong>
                 </span>
               </label>
+              {hasStepFieldError(errors, stepKey, 'agreedToTerms') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'agreedToTerms')} 
+                />
+              )}
             </div>
           </div>
         </div>
@@ -79,10 +90,14 @@ const DeclarationSection = ({ data, onChange }: DeclarationSectionProps) => {
               type="date"
               value={data.dateOfApplication || todayDate}
               onChange={(e) => handleInputChange(e, 'dateOfApplication')}
-              readOnly
-              className="form-input"
+              className={`form-input ${hasStepFieldError(errors, stepKey, 'dateOfApplication') ? 'error' : ''}`}
               style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
             />
+            {hasStepFieldError(errors, stepKey, 'dateOfApplication') && (
+              <ValidationErrorDisplay 
+                error={getStepFieldError(errors, stepKey, 'dateOfApplication')} 
+              />
+            )}
             <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
               Auto-filled (non-editable)
             </small>
@@ -99,8 +114,13 @@ const DeclarationSection = ({ data, onChange }: DeclarationSectionProps) => {
               onChange={(e) => handleInputChange(e, 'place')}
               placeholder="Enter your location/city"
               required
-              className="form-input"
+              className={`form-input ${hasStepFieldError(errors, stepKey, 'place') ? 'error' : ''}`}
             />
+            {hasStepFieldError(errors, stepKey, 'place') && (
+              <ValidationErrorDisplay 
+                error={getStepFieldError(errors, stepKey, 'place')} 
+              />
+            )}
           </div>
         </div>
 

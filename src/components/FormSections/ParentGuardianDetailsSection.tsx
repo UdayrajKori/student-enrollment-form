@@ -1,12 +1,18 @@
 import type { ChangeEvent } from 'react';
 import type { ParentGuardianDetails, LegalGuardian } from '../../types';
+import ValidationErrorDisplay from '../ValidationErrorDisplay';
+import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
+import type { ValidationError } from '../../validation/utils';
 
 interface ParentGuardianDetailsSectionProps {
   data: ParentGuardianDetails;
   onChange: (path: string, value: any) => void;
+  errors?: ValidationError[];
 }
 
-const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsSectionProps) => {
+const ParentGuardianDetailsSection = ({ data, onChange, errors = [] }: ParentGuardianDetailsSectionProps) => {
+  const stepKey = 'guardian';
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
@@ -54,19 +60,33 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
             onChange={(e) => handleInputChange(e, 'father.fullName')}
             placeholder="Enter father's name"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'father.fullName') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'father.fullName') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'father.fullName')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
-          <label className="form-label">Occupation</label>
+          <label className="form-label">
+            Occupation
+            <span className="required">*</span>
+          </label>
           <input
             type="text"
             value={data.father?.occupation || ''}
             onChange={(e) => handleInputChange(e, 'father.occupation')}
             placeholder="e.g., Farmer, Business, Service"
-            className="form-input"
+            required
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'father.occupation') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'father.occupation') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'father.occupation')} 
+            />
+          )}
         </div>
       </div>
 
@@ -107,8 +127,13 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
             placeholder="Enter mobile number"
             pattern="[0-9]{10}"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'father.mobileNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'father.mobileNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'father.mobileNumber')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -138,19 +163,33 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
             onChange={(e) => handleInputChange(e, 'mother.fullName')}
             placeholder="Enter mother's name"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'mother.fullName') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'mother.fullName') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'mother.fullName')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
-          <label className="form-label">Occupation</label>
+          <label className="form-label">
+            Occupation
+            <span className="required">*</span>
+          </label>
           <input
             type="text"
             value={data.mother?.occupation || ''}
             onChange={(e) => handleInputChange(e, 'mother.occupation')}
             placeholder="e.g., Farmer, Housewife, Service"
-            className="form-input"
+            required
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'mother.occupation') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'mother.occupation') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'mother.occupation')} 
+            />
+          )}
         </div>
       </div>
 
@@ -191,8 +230,13 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
             placeholder="Enter mobile number"
             pattern="[0-9]{10}"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'mother.mobileNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'mother.mobileNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'mother.mobileNumber')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -238,8 +282,13 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
                     onChange={(e) => handleGuardianChange(guardian.id, 'fullName', e.target.value)}
                     placeholder="Enter guardian's name"
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `legalGuardians.${index}.fullName`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `legalGuardians.${index}.fullName`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `legalGuardians.${index}.fullName`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -251,7 +300,7 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
                     value={guardian.relation || ''}
                     onChange={(e) => handleGuardianChange(guardian.id, 'relation', e.target.value)}
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `legalGuardians.${index}.relation`) ? 'error' : ''}`}
                   >
                     <option value="">-- Select Relation --</option>
                     <option value="Grandparent">Grandparent</option>
@@ -261,6 +310,11 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
                     <option value="Court Appointed">Court Appointed</option>
                     <option value="Other">Other</option>
                   </select>
+                  {hasStepFieldError(errors, stepKey, `legalGuardians.${index}.relation`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `legalGuardians.${index}.relation`)} 
+                    />
+                  )}
                 </div>
               </div>
 
@@ -288,8 +342,13 @@ const ParentGuardianDetailsSection = ({ data, onChange }: ParentGuardianDetailsS
                     placeholder="Enter mobile number"
                     pattern="[0-9]{10}"
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `legalGuardians.${index}.mobileNumber`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `legalGuardians.${index}.mobileNumber`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `legalGuardians.${index}.mobileNumber`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">

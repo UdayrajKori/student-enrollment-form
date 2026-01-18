@@ -1,13 +1,19 @@
 import type { ChangeEvent } from 'react';
 import type { FinancialDetails } from '../../types';
+import ValidationErrorDisplay from '../ValidationErrorDisplay';
+import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
+import type { ValidationError } from '../../validation/utils';
 import { feeCategories, scholarshipTypes } from '../../data/financialData';
 
 interface FinancialDetailsSectionProps {
   data: FinancialDetails;
   onChange: (path: string, value: any) => void;
+  errors?: ValidationError[];
 }
 
-const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProps) => {
+const FinancialDetailsSection = ({ data, onChange, errors = [] }: FinancialDetailsSectionProps) => {
+  const stepKey = 'financial';
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
@@ -31,13 +37,18 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
             value={data.feeCategory || ''}
             onChange={(e) => handleInputChange(e, 'feeCategory')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'feeCategory') ? 'error' : ''}`}
           >
             <option value="">-- Select Fee Category --</option>
             {feeCategories.map(category => (
               <option key={category} value={category}>{category}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'feeCategory') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'feeCategory')} 
+            />
+          )}
         </div>
       </div>
 
@@ -62,13 +73,18 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
                   onChange('scholarshipDetails', updatedScholarship);
                 }}
                 required
-                className="form-input"
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipType') ? 'error' : ''}`}
               >
                 <option value="">-- Select Type --</option>
                 {scholarshipTypes.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
+              {hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipType') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipType')} 
+                />
+              )}
             </div>
 
             <div className="form-group">
@@ -88,8 +104,13 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
                 }}
                 placeholder="e.g., XYZ Foundation, Government"
                 required
-                className="form-input"
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipProviderName') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipProviderName') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipProviderName')} 
+                />
+              )}
             </div>
 
             <div className="form-group">
@@ -103,15 +124,20 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
                 onChange={(e) => {
                   const updatedScholarship = {
                     ...data.scholarshipDetails,
-                    scholarshipAmount: parseFloat(e.target.value)
+                    scholarshipAmount: e.target.value
                   } as any;
                   onChange('scholarshipDetails', updatedScholarship);
                 }}
                 placeholder="Enter amount in NRs"
                 min="0"
                 required
-                className="form-input"
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipAmount') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipAmount') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipAmount')} 
+                />
+              )}
             </div>
           </div>
         </>
@@ -165,8 +191,13 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
                 }}
                 placeholder="Enter account holder's name"
                 required
-                className="form-input"
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'bankDetails.accountHolderName') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'bankDetails.accountHolderName') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'bankDetails.accountHolderName')} 
+                />
+              )}
             </div>
 
             <div className="form-group">
@@ -186,8 +217,13 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
                 }}
                 placeholder="e.g., Nepal Bank Limited, Himalayan Bank"
                 required
-                className="form-input"
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'bankDetails.bankName') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'bankDetails.bankName') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'bankDetails.bankName')} 
+                />
+              )}
             </div>
           </div>
 
@@ -209,8 +245,13 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
                 }}
                 placeholder="Enter account number"
                 required
-                className="form-input"
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'bankDetails.accountNumber') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'bankDetails.accountNumber') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'bankDetails.accountNumber')} 
+                />
+              )}
             </div>
 
             <div className="form-group">
@@ -230,8 +271,13 @@ const FinancialDetailsSection = ({ data, onChange }: FinancialDetailsSectionProp
                 }}
                 placeholder="Enter branch location"
                 required
-                className="form-input"
+                className={`form-input ${hasStepFieldError(errors, stepKey, 'bankDetails.branch') ? 'error' : ''}`}
               />
+              {hasStepFieldError(errors, stepKey, 'bankDetails.branch') && (
+                <ValidationErrorDisplay 
+                  error={getStepFieldError(errors, stepKey, 'bankDetails.branch')} 
+                />
+              )}
             </div>
           </div>
         </>

@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import type { PersonalDetails } from '../../types';
+import ValidationErrorDisplay from '../ValidationErrorDisplay';
+import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
+import type { ValidationError } from '../../validation/utils';
 
 interface PersonalDetailsSectionProps {
   data: PersonalDetails;
   onChange: (field: keyof PersonalDetails, value: any) => void;
+  errors?: ValidationError[];
 }
 
-const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps) => {
+const PersonalDetailsSection = ({ data, onChange, errors = [] }: PersonalDetailsSectionProps) => {
   const [imagePreview, setImagePreview] = useState<string>('');
+  const stepKey = 'personal';
 
   // Recreate preview when data.profileImage exists
   useEffect(() => {
@@ -80,6 +85,11 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
               )}
             </label>
           </div>
+          {hasStepFieldError(errors, stepKey, 'profileImage') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'profileImage')} 
+            />
+          )}
         </div>
       </div>
 
@@ -97,8 +107,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             onChange={handleInputChange}
             placeholder="Enter first name"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'firstName') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'firstName') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'firstName')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -109,8 +124,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             value={data.middleName || ''}
             onChange={handleInputChange}
             placeholder="Enter middle name"
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'middleName') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'middleName') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'middleName')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -125,8 +145,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             onChange={handleInputChange}
             placeholder="Enter last name"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'lastName') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'lastName') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'lastName')} 
+            />
+          )}
         </div>
       </div>
 
@@ -143,8 +168,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             value={data.dateOfBirth || ''}
             onChange={handleInputChange}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'dateOfBirth') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'dateOfBirth') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'dateOfBirth')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -155,8 +185,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             value={data.placeOfBirth || ''}
             onChange={handleInputChange}
             placeholder="Enter city/district"
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'placeOfBirth') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'placeOfBirth') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'placeOfBirth')} 
+            />
+          )}
         </div>
       </div>
 
@@ -172,13 +207,18 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             value={data.nationality || 'Nepali'}
             onChange={handleInputChange}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'nationality') ? 'error' : ''}`}
           >
             <option value="Nepali">Nepali</option>
             <option value="Indian">Indian</option>
             <option value="Chinese">Chinese</option>
             <option value="Other">Other</option>
           </select>
+          {hasStepFieldError(errors, stepKey, 'nationality') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'nationality')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -193,8 +233,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             onChange={handleInputChange}
             placeholder="Enter citizenship number"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'citizenshipNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'citizenshipNumber')} 
+            />
+          )}
         </div>
       </div>
 
@@ -211,8 +256,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             value={data.citizenshipIssueDate || ''}
             onChange={handleInputChange}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipIssueDate') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'citizenshipIssueDate') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'citizenshipIssueDate')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -227,8 +277,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             onChange={handleInputChange}
             placeholder="Enter district"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipIssueDistrict') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'citizenshipIssueDistrict') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'citizenshipIssueDistrict')} 
+            />
+          )}
         </div>
       </div>
 
@@ -246,8 +301,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             onChange={handleInputChange}
             placeholder="Enter email"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'email') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'email') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'email')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -278,8 +338,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             placeholder="Enter mobile number"
             pattern="[0-9]{10}"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'primaryMobile') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'primaryMobile') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'primaryMobile')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -312,8 +377,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             onChange={handleInputChange}
             placeholder="Enter name"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'emergencyContactName') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'emergencyContactName') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'emergencyContactName')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -326,7 +396,7 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             value={data.emergencyContactRelation || ''}
             onChange={handleInputChange}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'emergencyContactRelation') ? 'error' : ''}`}
           >
             <option value="">-- Select Relation --</option>
             <option value="Father">Father</option>
@@ -336,6 +406,11 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             <option value="Relative">Relative</option>
             <option value="Other">Other</option>
           </select>
+          {hasStepFieldError(errors, stepKey, 'emergencyContactRelation') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'emergencyContactRelation')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -351,8 +426,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             placeholder="Enter mobile"
             pattern="[0-9]{10}"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'emergencyContactNumber') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'emergencyContactNumber') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'emergencyContactNumber')} 
+            />
+          )}
         </div>
       </div>
 
@@ -370,7 +450,7 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             value={data.gender || ''}
             onChange={handleInputChange}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'gender') ? 'error' : ''}`}
           >
             <option value="">-- Select Gender --</option>
             <option value="Male">Male</option>
@@ -378,6 +458,11 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             <option value="Other">Other</option>
             <option value="Prefer not to say">Prefer not to say</option>
           </select>
+          {hasStepFieldError(errors, stepKey, 'gender') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'gender')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -448,8 +533,13 @@ const PersonalDetailsSection = ({ data, onChange }: PersonalDetailsSectionProps)
             onChange={handleInputChange}
             placeholder="Enter ethnicity/caste"
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'ethnicity') ? 'error' : ''}`}
           />
+          {hasStepFieldError(errors, stepKey, 'ethnicity') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'ethnicity')} 
+            />
+          )}
         </div>
       </div>
 

@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import type { StudentEnrollmentForm, PersonalDetails, AddressDetails, ParentGuardianDetails, AcademicDetails } from '../types';
+import { EnrollmentFormSchema } from '../validation/schema';
+import { formatZodErrors, type ValidationError } from '../validation/utils';
+import { ValidationSummary } from './ValidationSummary';
 import '../styles/form.css';
 import '../styles/formFields.css';
 import '../styles/addressFields.css';
@@ -17,24 +20,77 @@ import DeclarationSection from './FormSections/DeclarationSection';
 
 const EnrollmentForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [formData, setFormData] = useState<StudentEnrollmentForm>({
     personalDetails: {} as any,
-    addressDetails: {} as any,
+    addressDetails: {
+      permanent: {
+        province: '',
+        district: '',
+        municipality: '',
+        wardNumber: '',
+        toleStreet: '',
+        houseNumber: '',
+      },
+      isSameAsPermanent: false,
+      temporary: {
+        province: '',
+        district: '',
+        municipality: '',
+        wardNumber: '',
+        toleStreet: '',
+        houseNumber: '',
+        sameAsPermanent: false,
+      },
+    } as any,
     parentGuardianDetails: {
-      father: {} as any,
-      mother: {} as any,
+      father: {
+        fullName: '',
+        occupation: '',
+        designation: '',
+        organization: '',
+        mobileNumber: '',
+        email: '',
+      },
+      mother: {
+        fullName: '',
+        occupation: '',
+        designation: '',
+        organization: '',
+        mobileNumber: '',
+        email: '',
+      },
       legalGuardians: [],
+      annualFamilyIncome: '',
     } as any,
     academicDetails: {
-      currentEnrollment: {} as any,
+      currentEnrollment: {
+        faculty: '',
+        program: '',
+        courseLevel: '',
+        academicYear: '',
+        semesterClass: '',
+        section: '',
+        enrollDate: '',
+        academicStatus: '',
+      },
       previousHistory: [],
     } as any,
     financialDetails: {
       feeCategory: '',
+      scholarshipDetails: {
+        scholarshipType: '',
+        scholarshipProviderName: '',
+        scholarshipAmount: '',
+      },
+      bankDetails: undefined,
     } as any,
     extracurricularDetails: {
       interests: [],
+      otherInterestDetails: '',
       previousAwards: [],
+      hostellerStatus: '',
+      transportationMethod: '',
     } as any,
     declaration: {
       agreedToTerms: false,
@@ -146,34 +202,114 @@ const EnrollmentForm = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+    // Validate current step data before moving to next
+    try {
+      const dataToValidate: any = {};
+      let stepName = '';
+      
+      switch (currentStep) {
+        case 1:
+          stepName = 'Personal Details';
+          dataToValidate.personal = formData.personalDetails;
+          console.log('Validating Personal Details:', formData.personalDetails);
+          EnrollmentFormSchema.pick({ personal: true }).parse(dataToValidate);
+          break;
+        case 2:
+          stepName = 'Address Details';
+          dataToValidate.address = formData.addressDetails;
+          console.log('Validating Address Details:', formData.addressDetails);
+          EnrollmentFormSchema.pick({ address: true }).parse(dataToValidate);
+          break;
+        case 3:
+          stepName = 'Parent/Guardian Details';
+          dataToValidate.guardian = formData.parentGuardianDetails;
+          console.log('Validating Guardian Details:', formData.parentGuardianDetails);
+          EnrollmentFormSchema.pick({ guardian: true }).parse(dataToValidate);
+          break;
+        case 4:
+          stepName = 'Academic Details';
+          dataToValidate.academic = formData.academicDetails;
+          console.log('Validating Academic Details:', formData.academicDetails);
+          EnrollmentFormSchema.pick({ academic: true }).parse(dataToValidate);
+          break;
+        case 5:
+          stepName = 'Financial Details';
+          dataToValidate.financial = formData.financialDetails;
+          console.log('Validating Financial Details:', formData.financialDetails);
+          EnrollmentFormSchema.pick({ financial: true }).parse(dataToValidate);
+          break;
+        case 6:
+          stepName = 'Extracurricular Details';
+          dataToValidate.extracurricular = formData.extracurricularDetails;
+          console.log('Validating Extracurricular Details:', formData.extracurricularDetails);
+          EnrollmentFormSchema.pick({ extracurricular: true }).parse(dataToValidate);
+          break;
+        case 7:
+          stepName = 'Declaration';
+          dataToValidate.declaration = formData.declaration;
+          console.log('Validating Declaration:', formData.declaration);
+          EnrollmentFormSchema.pick({ declaration: true }).parse(dataToValidate);
+          break;
+      }
+      
+      // If validation passes, clear errors and move to next step
+      setValidationErrors([]);
+      if (currentStep < totalSteps) {
+        setCurrentStep(currentStep + 1);
+      }
+    } catch (error: any) {
+      // Check if it's a ZodError
+      if (error.issues && Array.isArray(error.issues)) {
+        const formattedErrors = formatZodErrors(error);
+        setValidationErrors(formattedErrors);
+        console.error(`Validation errors on step ${currentStep}:`, formattedErrors);
+        console.error('Raw ZodError issues:', error.issues);
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      setValidationErrors([]);
     }
   };
 
   const handleSubmit = () => {
-    // Validate required fields
-    if (!formData.declaration.agreedToTerms) {
-      alert('Please agree to the declaration before submitting.');
-      return;
-    }
+    try {
+      // Map internal form structure to schema structure for validation
+      const dataToValidate = {
+        personal: formData.personalDetails,
+        address: formData.addressDetails,
+        guardian: formData.parentGuardianDetails,
+        academic: formData.academicDetails,
+        financial: formData.financialDetails,
+        extracurricular: formData.extracurricularDetails,
+        declaration: formData.declaration,
+      };
 
-    if (!formData.declaration.dateOfApplication || !formData.declaration.place) {
-      alert('Please fill in all required declaration fields.');
-      return;
+      // Validate entire form
+      EnrollmentFormSchema.parse(dataToValidate);
+      
+      setValidationErrors([]);
+      console.log('=== STUDENT ENROLLMENT FORM SUBMITTED ===');
+      console.log(JSON.stringify(formData, null, 2));
+      
+      alert('✓ Form submitted successfully!\n\nCheck the browser console for detailed form data.');
+      // TODO: Send formData to backend API
+    } catch (error: any) {
+      // Check if it's a ZodError
+      if (error.issues && Array.isArray(error.issues)) {
+        const errors = formatZodErrors(error);
+        setValidationErrors(errors);
+        console.error('Form validation errors:', errors);
+        alert('Please fix the validation errors before submitting.');
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
-
-    console.log('=== STUDENT ENROLLMENT FORM SUBMITTED ===');
-    console.log(JSON.stringify(formData, null, 2));
-    
-    alert('✓ Form submitted successfully!\n\nCheck the browser console for detailed form data.');
-    // TODO: Send formData to backend API
   };
 
   const getStepContent = () => {
@@ -183,6 +319,7 @@ const EnrollmentForm = () => {
           <PersonalDetailsSection 
             data={formData.personalDetails}
             onChange={handlePersonalDetailsChange}
+            errors={validationErrors}
           />
         );
       case 2:
@@ -190,6 +327,7 @@ const EnrollmentForm = () => {
           <AddressDetailsSection 
             data={formData.addressDetails}
             onChange={handleAddressDetailsChange}
+            errors={validationErrors}
           />
         );
       case 3:
@@ -197,6 +335,7 @@ const EnrollmentForm = () => {
           <ParentGuardianDetailsSection 
             data={formData.parentGuardianDetails}
             onChange={handleParentGuardianDetailsChange}
+            errors={validationErrors}
           />
         );
       case 4:
@@ -204,6 +343,7 @@ const EnrollmentForm = () => {
           <AcademicDetailsSection 
             data={formData.academicDetails}
             onChange={handleAcademicDetailsChange}
+            errors={validationErrors}
           />
         );
       case 5:
@@ -211,6 +351,7 @@ const EnrollmentForm = () => {
           <FinancialDetailsSection 
             data={formData.financialDetails}
             onChange={handleFinancialDetailsChange}
+            errors={validationErrors}
           />
         );
       case 6:
@@ -218,6 +359,7 @@ const EnrollmentForm = () => {
           <ExtracurricularDetailsSection 
             data={formData.extracurricularDetails}
             onChange={handleExtracurricularDetailsChange}
+            errors={validationErrors}
           />
         );
       case 7:
@@ -225,6 +367,7 @@ const EnrollmentForm = () => {
           <DeclarationSection 
             data={formData.declaration}
             onChange={handleDeclarationChange}
+            errors={validationErrors}
           />
         );
       default:

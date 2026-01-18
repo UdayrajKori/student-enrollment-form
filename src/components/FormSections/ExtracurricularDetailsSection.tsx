@@ -1,13 +1,19 @@
 import type { ChangeEvent } from 'react';
 import type { ExtracurricularDetails, Award } from '../../types';
+import ValidationErrorDisplay from '../ValidationErrorDisplay';
+import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
+import type { ValidationError } from '../../validation/utils';
 import { interests, hostellerStatuses, transportationMethods } from '../../data/extracurricularData';
 
 interface ExtracurricularDetailsSectionProps {
   data: ExtracurricularDetails;
   onChange: (path: string, value: any) => void;
+  errors?: ValidationError[];
 }
 
-const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetailsSectionProps) => {
+const ExtracurricularDetailsSection = ({ data, onChange, errors = [] }: ExtracurricularDetailsSectionProps) => {
+  const stepKey = 'extracurricular';
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
@@ -55,7 +61,7 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
             Select Your Interests
             <span className="required">*</span>
           </label>
-          <div className="checkboxes-grid">
+          <div className={`checkboxes-grid ${hasStepFieldError(errors, stepKey, 'interests') ? 'error' : ''}`}>
             {interests.map(interest => (
               <label key={interest} className="checkbox-label-inline">
                 <input
@@ -68,6 +74,11 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
               </label>
             ))}
           </div>
+          {hasStepFieldError(errors, stepKey, 'interests') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'interests')} 
+            />
+          )}
         </div>
       </div>
 
@@ -85,8 +96,13 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
               onChange={(e) => handleInputChange(e, 'otherInterestDetails')}
               placeholder="e.g., Photography, Writing, etc."
               required
-              className="form-input"
+              className={`form-input ${hasStepFieldError(errors, stepKey, 'otherInterestDetails') ? 'error' : ''}`}
             />
+            {hasStepFieldError(errors, stepKey, 'otherInterestDetails') && (
+              <ValidationErrorDisplay 
+                error={getStepFieldError(errors, stepKey, 'otherInterestDetails')} 
+              />
+            )}
           </div>
         </div>
       )}
@@ -122,8 +138,13 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
                     onChange={(e) => handleAwardChange(index, 'title', e.target.value)}
                     placeholder="e.g., National Science Olympiad Winner"
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousAwards.${index}.title`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `previousAwards.${index}.title`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousAwards.${index}.title`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -137,8 +158,13 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
                     onChange={(e) => handleAwardChange(index, 'issuingOrganization', e.target.value)}
                     placeholder="e.g., Ministry of Education, School"
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousAwards.${index}.issuingOrganization`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `previousAwards.${index}.issuingOrganization`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousAwards.${index}.issuingOrganization`)} 
+                    />
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -154,8 +180,13 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
                     min="1900"
                     max={new Date().getFullYear()}
                     required
-                    className="form-input"
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousAwards.${index}.yearReceived`) ? 'error' : ''}`}
                   />
+                  {hasStepFieldError(errors, stepKey, `previousAwards.${index}.yearReceived`) && (
+                    <ValidationErrorDisplay 
+                      error={getStepFieldError(errors, stepKey, `previousAwards.${index}.yearReceived`)} 
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -187,13 +218,18 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
             value={data.hostellerStatus || ''}
             onChange={(e) => handleInputChange(e, 'hostellerStatus')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'hostellerStatus') ? 'error' : ''}`}
           >
             <option value="">-- Select Status --</option>
             {hostellerStatuses.map(status => (
               <option key={status} value={status}>{status}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'hostellerStatus') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'hostellerStatus')} 
+            />
+          )}
         </div>
 
         <div className="form-group">
@@ -205,13 +241,18 @@ const ExtracurricularDetailsSection = ({ data, onChange }: ExtracurricularDetail
             value={data.transportationMethod || ''}
             onChange={(e) => handleInputChange(e, 'transportationMethod')}
             required
-            className="form-input"
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'transportationMethod') ? 'error' : ''}`}
           >
             <option value="">-- Select Method --</option>
             {transportationMethods.map(method => (
               <option key={method} value={method}>{method}</option>
             ))}
           </select>
+          {hasStepFieldError(errors, stepKey, 'transportationMethod') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'transportationMethod')} 
+            />
+          )}
         </div>
       </div>
     </div>
