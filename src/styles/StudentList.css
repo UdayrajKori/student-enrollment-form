@@ -1,0 +1,354 @@
+/* Student List Container */
+.student-list-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.list-header {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.list-header h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.register-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+}
+
+.register-btn:active {
+  transform: translateY(0);
+}
+
+/* Error and Loading States */
+.error-message {
+  max-width: 1200px;
+  margin: 0 auto 20px;
+  padding: 15px 20px;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaba;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.loading {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  color: #667eea;
+  font-size: 1.1rem;
+  padding: 40px;
+  font-weight: 500;
+}
+
+.no-students {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  background: white;
+  padding: 60px 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.no-students p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Students Grid */
+.students-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 0 20px;
+}
+
+/* Professional Profile Card - Compact Size */
+.student-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 1px solid #f0f0f0;
+  padding: 28px 20px;
+  text-align: center;
+}
+
+.student-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 28px rgba(102, 126, 234, 0.15);
+}
+
+/* Profile Image - Centered at Top */
+.card-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+  background: none;
+  padding: 0;
+  height: auto;
+}
+
+.student-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.18);
+  transition: all 0.3s ease;
+}
+
+.student-card:hover .student-photo {
+  transform: scale(1.1);
+  box-shadow: 0 5px 14px rgba(102, 126, 234, 0.25);
+}
+
+.photo-placeholder {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0f0f0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.18);
+}
+
+/* Card Content - Center Aligned */
+.card-content {
+  padding: 0;
+  flex-grow: 1;
+  border: none;
+  margin-bottom: 16px;
+}
+
+.student-name {
+  margin: 0 0 4px 0;
+  color: #1a202c;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+}
+
+/* Subtitle - Faculty & Program */
+.card-subtitle {
+  color: #999;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.2px;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 0;
+  font-size: 0.8rem;
+  color: #646f7a;
+  line-height: 1.5;
+}
+
+.student-info p {
+  margin: 0;
+  color: #646f7a;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.student-info .label {
+  font-weight: 600;
+  color: #667eea;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+
+/* Card Actions - Hidden by Default, Show on Hover */
+.card-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  width: 100%;
+  justify-content: center;
+}
+
+.student-card:hover .card-actions {
+  opacity: 1;
+  max-height: 200px;
+  pointer-events: all;
+}
+
+.btn {
+  padding: 8px 8px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  min-height: 38px;
+  min-width: 38px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  width: auto;
+}
+
+.btn-details {
+  background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+  color: white;
+}
+
+.btn-details:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
+}
+
+.btn-edit {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+}
+
+.btn-edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.35);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+}
+
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.35);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .list-header h1 {
+    font-size: 2rem;
+  }
+
+  .register-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .students-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-card {
+    width: 100%;
+  }
+
+  .btn {
+    flex: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .list-header h1 {
+    font-size: 2rem;
+  }
+
+  .register-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .students-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-card {
+    width: 100%;
+  }
+
+  .card-actions {
+    opacity: 1;
+    max-height: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px 16px 16px 16px;
+  }
+
+  .btn {
+    flex: 1;
+    min-width: 100px;
+  }
+}

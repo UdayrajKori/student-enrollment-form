@@ -3,6 +3,7 @@ import type { StudentEnrollmentForm, PersonalDetails, AddressDetails, ParentGuar
 import { EnrollmentFormSchema } from '../validation/schema';
 import { formatZodErrors, type ValidationError } from '../validation/utils';
 import { ValidationSummary } from './ValidationSummary';
+import { submitStudentEnrollment } from '../services/studentApi';
 import '../styles/form.css';
 import '../styles/formFields.css';
 import '../styles/addressFields.css';
@@ -18,9 +19,16 @@ import FinancialDetailsSection from './FormSections/FinancialDetailsSection';
 import ExtracurricularDetailsSection from './FormSections/ExtracurricularDetailsSection';
 import DeclarationSection from './FormSections/DeclarationSection';
 
-const EnrollmentForm = () => {
+interface EnrollmentFormProps {
+  onSuccess?: () => void;
+  editingPid?: string | null;
+  onCancel?: () => void;
+}
+
+const EnrollmentForm = ({ onSuccess, editingPid, onCancel }: EnrollmentFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<StudentEnrollmentForm>({
     personalDetails: {} as any,
     addressDetails: {
@@ -100,6 +108,85 @@ const EnrollmentForm = () => {
   });
 
   const totalSteps = 7;
+
+  // Helper function to create initial form data
+  const createInitialFormData = (): StudentEnrollmentForm => ({
+    personalDetails: {} as any,
+    addressDetails: {
+      permanent: {
+        province: '',
+        district: '',
+        municipality: '',
+        wardNumber: '',
+        toleStreet: '',
+        houseNumber: '',
+      },
+      isSameAsPermanent: false,
+      temporary: {
+        province: '',
+        district: '',
+        municipality: '',
+        wardNumber: '',
+        toleStreet: '',
+        houseNumber: '',
+        sameAsPermanent: false,
+      },
+    } as any,
+    parentGuardianDetails: {
+      father: {
+        fullName: '',
+        occupation: '',
+        designation: '',
+        organization: '',
+        mobileNumber: '',
+        email: '',
+      },
+      mother: {
+        fullName: '',
+        occupation: '',
+        designation: '',
+        organization: '',
+        mobileNumber: '',
+        email: '',
+      },
+      legalGuardians: [],
+      annualFamilyIncome: '',
+    } as any,
+    academicDetails: {
+      currentEnrollment: {
+        faculty: '',
+        program: '',
+        courseLevel: '',
+        academicYear: '',
+        semesterClass: '',
+        section: '',
+        enrollDate: '',
+        academicStatus: '',
+      },
+      previousHistory: [],
+    } as any,
+    financialDetails: {
+      feeCategory: '',
+      scholarshipDetails: {
+        scholarshipType: '',
+        scholarshipProviderName: '',
+        scholarshipAmount: '',
+      },
+      bankDetails: undefined,
+    } as any,
+    extracurricularDetails: {
+      interests: [],
+      otherInterestDetails: '',
+      previousAwards: [],
+      hostellerStatus: '',
+      transportationMethod: '',
+    } as any,
+    declaration: {
+      agreedToTerms: false,
+      dateOfApplication: new Date().toISOString().split('T')[0],
+      place: '',
+    } as any,
+  });
 
   const handlePersonalDetailsChange = (field: keyof PersonalDetails, value: any) => {
     setFormData(prev => ({
@@ -294,11 +381,7 @@ const EnrollmentForm = () => {
       EnrollmentFormSchema.parse(dataToValidate);
       
       setValidationErrors([]);
-      console.log('=== STUDENT ENROLLMENT FORM SUBMITTED ===');
-      console.log(JSON.stringify(formData, null, 2));
-      
-      alert('✓ Form submitted successfully!\n\nCheck the browser console for detailed form data.');
-      // TODO: Send formData to backend API
+      submitFormToBackend();
     } catch (error: any) {
       // Check if it's a ZodError
       if (error.issues && Array.isArray(error.issues)) {
@@ -309,6 +392,35 @@ const EnrollmentForm = () => {
       } else {
         console.error('Unexpected error:', error);
       }
+    }
+  };
+
+  const submitFormToBackend = async () => {
+    setIsSubmitting(true);
+    try {
+      console.log('=== SUBMITTING TO BACKEND ===');
+      const result = await submitStudentEnrollment(formData);
+
+      if (result.success) {
+        console.log('✓ Form submitted successfully!', result.data);
+        alert('✓ Student ' + (editingPid ? 'updated' : 'registered') + ' successfully!');
+        // Reset form properly
+        setCurrentStep(1);
+        setFormData(createInitialFormData());
+        setValidationErrors([]);
+        // Call onSuccess callback if provided
+        if (onSuccess) {
+          onSuccess();
+        }
+      } else {
+        console.error('Backend error:', result.error);
+        alert(`❌ Submission failed:\n\n${result.error}`);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('❌ An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -420,30 +532,41 @@ const EnrollmentForm = () => {
       </div>
 
       <div className="form-navigation">
-        <button 
-          className="btn btn-secondary"
-          onClick={handlePrevious}
-          disabled={currentStep === 1}
-        >
-          Previous
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {onCancel && (
+            <button 
+              className="btn btn-secondary"
+              onClick={onCancel}
+              style={{ marginRight: 'auto' }}
+            >
+              Back to List
+            </button>
+          )}
+          <button 
+            className="btn btn-secondary"
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+          >
+            Previous
+          </button>
 
-        {currentStep === totalSteps ? (
-          <button 
-            className="btn btn-success"
-            onClick={handleSubmit}
-            disabled={!formData.declaration.agreedToTerms || !formData.declaration.place}
-          >
-            Submit Form
-          </button>
-        ) : (
-          <button 
-            className="btn btn-primary"
-            onClick={handleNext}
-          >
-            Next
-          </button>
-        )}
+          {currentStep === totalSteps ? (
+            <button 
+              className="btn btn-success"
+              onClick={handleSubmit}
+              disabled={!formData.declaration.agreedToTerms || !formData.declaration.place || isSubmitting}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Form'}
+            </button>
+          ) : (
+            <button 
+              className="btn btn-primary"
+              onClick={handleNext}
+            >
+              Next
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

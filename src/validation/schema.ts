@@ -105,8 +105,7 @@ export const AcademicDetailsSchema = z.object({
     academicStatus: z.string().optional().default(''),
   }).passthrough(),
   previousHistory: z.array(QualificationSchema).optional(),
-  citizenshipFrontUpload: z.instanceof(File).refine(val => val !== null && val !== undefined, 'Citizenship copy front is required'),
-  citizenshipBackUpload: z.instanceof(File).refine(val => val !== null && val !== undefined, 'Citizenship copy back is required'),
+  citizenshipUpload: z.instanceof(File).refine(val => val !== null && val !== undefined, 'Citizenship document is required'),
   signatureUpload: z.instanceof(File).refine(val => val !== null && val !== undefined, 'Signature upload is required'),
   characterCertificateUpload: z.instanceof(File).optional().nullable(),
 }).passthrough();

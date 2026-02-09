@@ -460,58 +460,29 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
       <div className="form-row">
         <div className="form-group">
           <label className="form-label">
-            Citizenship Copy - Front
+            Citizenship Document
             <span className="required">*</span>
           </label>
           <input
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
-            onChange={(e) => handleFileChange(e, 'citizenshipFrontUpload')}
+            onChange={(e) => handleFileChange(e, 'citizenshipUpload')}
             required
-            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipFrontUpload') ? 'error' : ''}`}
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipUpload') ? 'error' : ''}`}
           />
-          {hasStepFieldError(errors, stepKey, 'citizenshipFrontUpload') && (
+          {hasStepFieldError(errors, stepKey, 'citizenshipUpload') && (
             <ValidationErrorDisplay 
-              error={getStepFieldError(errors, stepKey, 'citizenshipFrontUpload')} 
+              error={getStepFieldError(errors, stepKey, 'citizenshipUpload')} 
             />
           )}
-          {getFileName(data.citizenshipFrontUpload) && (
+          {getFileName(data.citizenshipUpload) && (
             <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
-              ✓ {getFileName(data.citizenshipFrontUpload)}
+              ✓ {getFileName(data.citizenshipUpload)}
             </small>
           )}
-          {!getFileName(data.citizenshipFrontUpload) && (
+          {!getFileName(data.citizenshipUpload) && (
             <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
-              PDF, JPG or PNG (Max 5MB)
-            </small>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">
-            Citizenship Copy - Back
-            <span className="required">*</span>
-          </label>
-          <input
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png"
-            onChange={(e) => handleFileChange(e, 'citizenshipBackUpload')}
-            required
-            className={`form-input ${hasStepFieldError(errors, stepKey, 'citizenshipBackUpload') ? 'error' : ''}`}
-          />
-          {hasStepFieldError(errors, stepKey, 'citizenshipBackUpload') && (
-            <ValidationErrorDisplay 
-              error={getStepFieldError(errors, stepKey, 'citizenshipBackUpload')} 
-            />
-          )}
-          {getFileName(data.citizenshipBackUpload) && (
-            <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
-              ✓ {getFileName(data.citizenshipBackUpload)}
-            </small>
-          )}
-          {!getFileName(data.citizenshipBackUpload) && (
-            <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
-              PDF, JPG or PNG (Max 5MB)
+              PDF, JPG or PNG (Max 5MB) - Can upload front or back or both pages in one file
             </small>
           )}
         </div>

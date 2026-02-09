@@ -101,8 +101,7 @@ export interface AcademicDetails {
     academicStatus: string;
   };
   previousHistory: AcademicQualification[];
-  citizenshipFrontUpload: File;
-  citizenshipBackUpload: File;
+  citizenshipUpload: File;
   signatureUpload: File;
   characterCertificateUpload?: File;
 }

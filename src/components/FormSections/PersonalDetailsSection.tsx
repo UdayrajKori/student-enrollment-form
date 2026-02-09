@@ -79,7 +79,7 @@ const PersonalDetailsSection = ({ data, onChange, errors = [] }: PersonalDetails
                 <img src={imagePreview} alt="Preview" className="image-preview" />
               ) : (
                 <div className="image-placeholder">
-                  <span>📷 Click to upload (PNG, JPG)</span>
+                  <span>Click to upload (PNG, JPG)</span>
                   <small>Max 1MB</small>
                 </div>
               )}
