@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react';
-import type { ExtracurricularDetails, Award } from '../../types';
+import type { ExtracurricularDetails } from '../../types';
 import ValidationErrorDisplay from '../ValidationErrorDisplay';
 import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
 import type { ValidationError } from '../../validation/utils';
@@ -14,7 +14,7 @@ interface ExtracurricularDetailsSectionProps {
 const ExtracurricularDetailsSection = ({ data, onChange, errors = [] }: ExtracurricularDetailsSectionProps) => {
   const stepKey = 'extracurricular';
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
   };
@@ -24,28 +24,6 @@ const ExtracurricularDetailsSection = ({ data, onChange, errors = [] }: Extracur
       ? data.interests.filter(i => i !== interest)
       : [...data.interests, interest];
     onChange('interests', updatedInterests);
-  };
-
-  const handleAddAward = () => {
-    const newAward: Award = {
-      title: '',
-      issuingOrganization: '',
-      yearReceived: ''
-    };
-    const updatedAwards = [...(data.previousAwards || []), newAward];
-    onChange('previousAwards', updatedAwards);
-  };
-
-  const handleRemoveAward = (index: number) => {
-    const updatedAwards = data.previousAwards.filter((_, i) => i !== index);
-    onChange('previousAwards', updatedAwards);
-  };
-
-  const handleAwardChange = (index: number, field: keyof Award, value: any) => {
-    const updatedAwards = data.previousAwards.map((award, i) =>
-      i === index ? { ...award, [field]: value } : award
-    );
-    onChange('previousAwards', updatedAwards);
   };
 
   const hasOtherInterest = data.interests.includes('Other');
@@ -108,101 +86,28 @@ const ExtracurricularDetailsSection = ({ data, onChange, errors = [] }: Extracur
       )}
 
       {/* Previous Achievements/Awards */}
-      <div className="form-section-divider">Previous Achievements/Awards</div>
-
-      {data.previousAwards && data.previousAwards.length > 0 && (
-        <div className="awards-list">
-          {data.previousAwards.map((award, index) => (
-            <div key={index} className="award-card">
-              <div className="award-header">
-                <h4>Award #{index + 1}</h4>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveAward(index)}
-                  className="btn-remove-award"
-                  title="Remove this award"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">
-                    Title of Award
-                    <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={award.title || ''}
-                    onChange={(e) => handleAwardChange(index, 'title', e.target.value)}
-                    placeholder="e.g., National Science Olympiad Winner"
-                    required
-                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousAwards.${index}.title`) ? 'error' : ''}`}
-                  />
-                  {hasStepFieldError(errors, stepKey, `previousAwards.${index}.title`) && (
-                    <ValidationErrorDisplay 
-                      error={getStepFieldError(errors, stepKey, `previousAwards.${index}.title`)} 
-                    />
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">
-                    Issuing Organization
-                    <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={award.issuingOrganization || ''}
-                    onChange={(e) => handleAwardChange(index, 'issuingOrganization', e.target.value)}
-                    placeholder="e.g., Ministry of Education, School"
-                    required
-                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousAwards.${index}.issuingOrganization`) ? 'error' : ''}`}
-                  />
-                  {hasStepFieldError(errors, stepKey, `previousAwards.${index}.issuingOrganization`) && (
-                    <ValidationErrorDisplay 
-                      error={getStepFieldError(errors, stepKey, `previousAwards.${index}.issuingOrganization`)} 
-                    />
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">
-                    Year Received
-                    <span className="required">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={award.yearReceived || ''}
-                    onChange={(e) => handleAwardChange(index, 'yearReceived', e.target.value)}
-                    placeholder="e.g., 2023"
-                    min="1900"
-                    max={new Date().getFullYear()}
-                    required
-                    className={`form-input ${hasStepFieldError(errors, stepKey, `previousAwards.${index}.yearReceived`) ? 'error' : ''}`}
-                  />
-                  {hasStepFieldError(errors, stepKey, `previousAwards.${index}.yearReceived`) && (
-                    <ValidationErrorDisplay 
-                      error={getStepFieldError(errors, stepKey, `previousAwards.${index}.yearReceived`)} 
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="form-section-divider">Achievements & Awards</div>
 
       <div className="form-row">
-        <button
-          type="button"
-          onClick={handleAddAward}
-          className="btn btn-secondary"
-          style={{ alignSelf: 'flex-start' }}
-        >
-          + Add Another Award
-        </button>
+        <div className="form-group full-width">
+          <label className="form-label">
+            Describe Your Achievements/Awards
+          </label>
+          <textarea
+            value={data.otherInterestDetails || ''}
+            onChange={(e) => handleInputChange(e, 'otherInterestDetails')}
+            placeholder="e.g., National Science Olympiad Winner 2023, Dean's List Award 2022, Sports Excellence Certificate 2021, etc."
+            rows={4}
+            className={`form-input ${hasStepFieldError(errors, stepKey, 'otherInterestDetails') ? 'error' : ''}`}
+            style={{ resize: 'vertical' }}
+          />
+          <small dangerously-set-inner-html={{ __html: 'You can add multiple achievements separated by line breaks or commas' }} />
+          {hasStepFieldError(errors, stepKey, 'otherInterestDetails') && (
+            <ValidationErrorDisplay 
+              error={getStepFieldError(errors, stepKey, 'otherInterestDetails')} 
+            />
+          )}
+        </div>
       </div>
 
       {/* Hosteller Status & Transportation */}

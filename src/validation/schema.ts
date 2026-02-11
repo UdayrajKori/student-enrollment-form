@@ -23,8 +23,8 @@ export const PersonalDetailsSchema = z.object({
   bloodGroup: z.string().optional().nullable().default(''),
   disability: z.boolean().optional(),
   disabilityType: z.string().optional().nullable().default(''),
-  disabilityPercentage: z.string().optional().nullable().default(''),
-  profileImage: z.instanceof(File).refine(val => val !== null && val !== undefined, 'Profile photo is required'),
+  disabilityPercentage: z.union([z.number(), z.string()]).optional().nullable().default(''),
+  profileImage: z.union([z.instanceof(File), z.string()]).optional().nullable().default(''),
   emergencyContactName: z.string().optional().default('').refine(val => val.length > 0, 'Emergency contact name is required'),
   emergencyContactNumber: z.string().optional().default('').refine(val => val.length > 0, 'Emergency contact number is required').refine(val => val === '' || /^\d{10}$/.test(val), 'Emergency contact number must be 10 digits'),
   emergencyContactRelation: z.string().optional().default('').refine(val => val.length > 0, 'Emergency contact relation is required'),
@@ -73,8 +73,7 @@ export const GuardianDetailsSchema = z.object({
   legalGuardians: z.array(z.object({
     id: z.string().optional(),
     fullName: z.string().optional().default('').refine(val => val.length > 0, 'Guardian full name is required'),
-    relation: z.string().optional().default('').refine(val => val.length > 0, 'Guardian relation is required'),
-    occupation: z.string().optional().default(''),
+    occupation: z.string().optional().default('').refine(val => val.length > 0, 'Guardian occupation is required'),
     mobileNumber: z.string().optional().default('').refine(val => val.length > 0, 'Guardian mobile number is required').refine(val => val === '' || /^\d{10}$/.test(val), 'Guardian mobile must be 10 digits'),
     email: z.string().optional().default(''),
   }).passthrough()).optional(),
@@ -105,9 +104,11 @@ export const AcademicDetailsSchema = z.object({
     academicStatus: z.string().optional().default(''),
   }).passthrough(),
   previousHistory: z.array(QualificationSchema).optional(),
-  citizenshipUpload: z.instanceof(File).refine(val => val !== null && val !== undefined, 'Citizenship document is required'),
-  signatureUpload: z.instanceof(File).refine(val => val !== null && val !== undefined, 'Signature upload is required'),
-  characterCertificateUpload: z.instanceof(File).optional().nullable(),
+  citizenshipUpload: z.union([z.instanceof(File), z.string()])
+    .refine(val => val !== null && val !== undefined && val !== '', 'Citizenship document is required'),
+  signatureUpload: z.union([z.instanceof(File), z.string()])
+    .refine(val => val !== null && val !== undefined && val !== '', 'Signature upload is required'),
+  characterCertificateUpload: z.union([z.instanceof(File), z.string()]).optional().nullable(),
 }).passthrough();
 
 // Financial Details Schema
@@ -116,7 +117,11 @@ export const FinancialDetailsSchema = z.object({
   scholarshipDetails: z.object({
     scholarshipType: z.string().optional().default('').refine(val => val.length > 0, 'Scholarship type is required'),
     scholarshipProviderName: z.string().optional().default('').refine(val => val.length > 0, 'Scholarship provider name is required'),
-    scholarshipAmount: z.string().optional().default('').refine(val => val.length > 0, 'Scholarship amount is required'),
+    scholarshipAmount: z.union([z.string(), z.number()])
+      .transform(val => typeof val === 'number' ? val.toString() : val)
+      .optional()
+      .default('')
+      .refine(val => val.length > 0, 'Scholarship amount is required'),
   }).passthrough().optional(),
   bankDetails: z.object({
     accountHolderName: z.string().optional().default('').refine(val => val.length > 0, 'Account holder name is required'),
@@ -137,7 +142,6 @@ export const AwardSchema = z.object({
 export const ExtracurricularDetailsSchema = z.object({
   interests: z.array(z.string()).optional().default([]).refine(val => val.length > 0, 'Select at least one interest'),
   otherInterestDetails: z.string().optional().default(''),
-  previousAwards: z.array(AwardSchema).optional(),
   hostellerStatus: z.string().optional().default('').refine(val => val.length > 0, 'Hosteller status is required'),
   transportationMethod: z.string().optional().default('').refine(val => val.length > 0, 'Transportation method is required'),
 }).passthrough().refine((data) => {

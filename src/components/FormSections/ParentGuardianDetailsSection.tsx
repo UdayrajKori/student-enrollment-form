@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { useEffect } from 'react';
 import type { ParentGuardianDetails, LegalGuardian } from '../../types';
 import ValidationErrorDisplay from '../ValidationErrorDisplay';
 import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
@@ -13,6 +14,14 @@ interface ParentGuardianDetailsSectionProps {
 const ParentGuardianDetailsSection = ({ data, onChange, errors = [] }: ParentGuardianDetailsSectionProps) => {
   const stepKey = 'guardian';
 
+  useEffect(() => {
+    console.log('👨‍👩‍👦 ParentGuardianDetailsSection received data:');
+    console.log('   Father:', data.father);
+    console.log('   Mother:', data.mother);
+    console.log('   Legal Guardians:', data.legalGuardians);
+    console.log('   Annual Family Income:', data.annualFamilyIncome);
+  }, [data]);
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
     const { value } = e.target;
     onChange(path, value);
@@ -22,7 +31,6 @@ const ParentGuardianDetailsSection = ({ data, onChange, errors = [] }: ParentGua
     const newGuardian: LegalGuardian = {
       id: Date.now().toString(),
       fullName: '',
-      relation: '',
       occupation: '',
       mobileNumber: '',
       email: ''
@@ -270,7 +278,7 @@ const ParentGuardianDetailsSection = ({ data, onChange, errors = [] }: ParentGua
                 </button>
               </div>
 
-              <div className="form-row">
+            <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">
                     Full Name
@@ -293,43 +301,26 @@ const ParentGuardianDetailsSection = ({ data, onChange, errors = [] }: ParentGua
 
                 <div className="form-group">
                   <label className="form-label">
-                    Relation to Student
+                    Occupation
                     <span className="required">*</span>
                   </label>
-                  <select
-                    value={guardian.relation || ''}
-                    onChange={(e) => handleGuardianChange(guardian.id, 'relation', e.target.value)}
+                  <input
+                    type="text"
+                    value={guardian.occupation || ''}
+                    onChange={(e) => handleGuardianChange(guardian.id, 'occupation', e.target.value)}
+                    placeholder="e.g., Farmer, Business, Service"
                     required
-                    className={`form-input ${hasStepFieldError(errors, stepKey, `legalGuardians.${index}.relation`) ? 'error' : ''}`}
-                  >
-                    <option value="">-- Select Relation --</option>
-                    <option value="Grandparent">Grandparent</option>
-                    <option value="Aunt/Uncle">Aunt/Uncle</option>
-                    <option value="Sibling">Sibling</option>
-                    <option value="Other Relative">Other Relative</option>
-                    <option value="Court Appointed">Court Appointed</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  {hasStepFieldError(errors, stepKey, `legalGuardians.${index}.relation`) && (
+                    className={`form-input ${hasStepFieldError(errors, stepKey, `legalGuardians.${index}.occupation`) ? 'error' : ''}`}
+                  />
+                  {hasStepFieldError(errors, stepKey, `legalGuardians.${index}.occupation`) && (
                     <ValidationErrorDisplay 
-                      error={getStepFieldError(errors, stepKey, `legalGuardians.${index}.relation`)} 
+                      error={getStepFieldError(errors, stepKey, `legalGuardians.${index}.occupation`)} 
                     />
                   )}
                 </div>
               </div>
 
               <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label">Occupation</label>
-                  <input
-                    type="text"
-                    value={guardian.occupation || ''}
-                    onChange={(e) => handleGuardianChange(guardian.id, 'occupation', e.target.value)}
-                    placeholder="e.g., Farmer, Business, Service"
-                    className="form-input"
-                  />
-                </div>
-
                 <div className="form-group">
                   <label className="form-label">
                     Mobile Number

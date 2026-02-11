@@ -5,6 +5,7 @@
   padding: 20px;
   background-color: #f5f5f5;
   border-radius: 8px;
+  position: relative;
 }
 
 .form-header {
@@ -158,6 +159,36 @@
 
 .btn-success:hover:not(:disabled) {
   background-color: #0b7dda;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  background-color: white;
+  padding: 40px 60px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner p {
+  margin: 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 /* Responsive */

@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { useEffect } from 'react';
 import type { AddressDetails } from '../../types';
 import ValidationErrorDisplay from '../ValidationErrorDisplay';
 import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
@@ -13,6 +14,35 @@ interface AddressDetailsSectionProps {
 
 const AddressDetailsSection = ({ data, onChange, errors = [] }: AddressDetailsSectionProps) => {
   const stepKey = 'address';
+
+  useEffect(() => {
+    // Auto-check 'same as permanent' if all fields match
+    const p = data.permanent;
+    const t = data.temporary;
+    
+    // Only compare if both addresses have data
+    const permanentHasData = p?.province && String(p.province).trim() !== '';
+    const temporaryHasData = t?.province && String(t.province).trim() !== '';
+    
+    if (!permanentHasData || !temporaryHasData) {
+      return; // Don't auto-check if either address is empty
+    }
+    
+    // Compare all fields as trimmed strings (case-insensitive for text fields)
+    const isSame =
+      String(p?.province ?? '').trim().toLowerCase() === String(t?.province ?? '').trim().toLowerCase() &&
+      String(p?.district ?? '').trim().toLowerCase() === String(t?.district ?? '').trim().toLowerCase() &&
+      String(p?.municipality ?? '').trim().toLowerCase() === String(t?.municipality ?? '').trim().toLowerCase() &&
+      String(p?.wardNumber ?? '').trim() === String(t?.wardNumber ?? '').trim() &&
+      String(p?.toleStreet ?? '').trim().toLowerCase() === String(t?.toleStreet ?? '').trim().toLowerCase() &&
+      String(p?.houseNumber ?? '').trim().toLowerCase() === String(t?.houseNumber ?? '').trim().toLowerCase();
+    
+    // Only auto-check when addresses match, preserve checked state otherwise
+    if (isSame && !t?.sameAsPermanent) {
+      onChange('temporary.sameAsPermanent', true);
+    }
+    // Don't auto-uncheck - preserve the user's choice or database state
+  }, [data, onChange]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, path: string) => {
     const { value } = e.target;

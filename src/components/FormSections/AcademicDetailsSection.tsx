@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import React, { useState } from 'react';
 import type { AcademicDetails, AcademicQualification } from '../../types';
 import ValidationErrorDisplay from '../ValidationErrorDisplay';
 import { getStepFieldError, hasStepFieldError } from '../../validation/utils';
@@ -36,11 +37,68 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
   };
 
   const getFileName = (file: any): string => {
+    if (!file) return '';
     if (file instanceof File) {
       return file.name;
     }
+    if (typeof file === 'string') {
+      // Extract file name from path
+      const parts = file.split(/[\\/]/);
+      return parts[parts.length - 1];
+    }
     return '';
   };
+
+  const getFileUrl = (file: any): string | undefined => {
+    if (!file) return undefined;
+    if (typeof file === 'string') {
+      if (file.startsWith('http')) {
+        return file;
+      }
+      const BASE_URL = "http://localhost:7257";
+      const cleanPath = file.startsWith('/') ? file.substring(1) : file;
+      return `${BASE_URL}/${cleanPath}`;
+    }
+    if (file instanceof File) {
+      return URL.createObjectURL(file);
+    }
+    return undefined;
+  };
+
+  // Helper to check if file is image
+  const isImageFile = (file: any): boolean => {
+    const name = getFileName(file).toLowerCase();
+    return name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png');
+  };
+  // Helper to check if file is PDF
+  const isPdfFile = (file: any): boolean => {
+    const name = getFileName(file).toLowerCase();
+    return name.endsWith('.pdf');
+  };
+
+  // DEBUG: Log file values and URLs for preview troubleshooting
+  React.useEffect(() => {
+    // Citizenship
+    if (data.citizenshipUpload) {
+      console.log('[DEBUG] Citizenship file:', data.citizenshipUpload, 'URL:', getFileUrl(data.citizenshipUpload));
+    }
+    // Signature
+    if (data.signatureUpload) {
+      console.log('[DEBUG] Signature file:', data.signatureUpload, 'URL:', getFileUrl(data.signatureUpload));
+    }
+    // Character Certificate
+    if (data.characterCertificateUpload) {
+      console.log('[DEBUG] Character Certificate file:', data.characterCertificateUpload, 'URL:', getFileUrl(data.characterCertificateUpload));
+    }
+    // Previous History Marksheet
+    if (data.previousHistory && Array.isArray(data.previousHistory)) {
+      data.previousHistory.forEach((q, idx) => {
+        if (q.marksheet) {
+          console.log(`[DEBUG] Marksheet file [${idx}]:`, q.marksheet, 'URL:', getFileUrl(q.marksheet));
+        }
+      });
+    }
+  }, [data]);
 
   const handleAddQualification = () => {
     const newQualification: AcademicQualification = {
@@ -66,7 +124,31 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
     onChange('previousHistory', updatedHistory);
   };
 
-  const programList = getProgramsForFaculty(data.currentEnrollment?.faculty || '');
+  let programList = getProgramsForFaculty(data.currentEnrollment?.faculty || '');
+  // Ensure API value is always present in dropdown
+  if (data.currentEnrollment?.program && !programList.includes(data.currentEnrollment.program)) {
+    programList = [data.currentEnrollment.program, ...programList];
+  }
+
+  // Academic Year
+  let academicYearList = [...academicYears];
+  if (data.currentEnrollment?.academicYear && !academicYearList.includes(data.currentEnrollment.academicYear)) {
+    academicYearList = [data.currentEnrollment.academicYear, ...academicYearList];
+  }
+
+  // Semester/Class
+  let semesterClassList = [...semestersClasses];
+  if (data.currentEnrollment?.semesterClass && !semesterClassList.includes(data.currentEnrollment.semesterClass)) {
+    semesterClassList = [data.currentEnrollment.semesterClass, ...semesterClassList];
+  }
+
+  // Qualification (Previous Academic History)
+  let qualificationList = [...qualifications];
+  (data.previousHistory || []).forEach(q => {
+    if (q.qualification && !qualificationList.includes(q.qualification)) {
+      qualificationList = [q.qualification, ...qualificationList];
+    }
+  });
 
   return (
     <div className="form-section academic-details">
@@ -158,7 +240,7 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
             className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.academicYear') ? 'error' : ''}`}
           >
             <option value="">-- Select Year --</option>
-            {academicYears.map(year => (
+            {academicYearList.map(year => (
               <option key={year} value={year}>{year}</option>
             ))}
           </select>
@@ -181,7 +263,7 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
             className={`form-input ${hasStepFieldError(errors, stepKey, 'currentEnrollment.semesterClass') ? 'error' : ''}`}
           >
             <option value="">-- Select Semester --</option>
-            {semestersClasses.map(sem => (
+            {semesterClassList.map(sem => (
               <option key={sem} value={sem}>{sem}</option>
             ))}
           </select>
@@ -325,7 +407,7 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
                     className={`form-input ${hasStepFieldError(errors, stepKey, `previousHistory.${index}.qualification`) ? 'error' : ''}`}
                   >
                     <option value="">-- Select Qualification --</option>
-                    {qualifications.map(qual => (
+                    {qualificationList.map(qual => (
                       <option key={qual} value={qual}>{qual}</option>
                     ))}
                   </select>
@@ -432,9 +514,11 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
                     PDF, JPG or PNG (Max 5MB)
                   </small>
                   {getFileName(qualification.marksheet) && (
-                    <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
-                      ✓ {getFileName(qualification.marksheet)}
-                    </small>
+                    <div style={{ marginTop: '5px' }}>
+                      <small style={{ color: '#4caf50', display: 'block', fontWeight: 'bold' }}>
+                        {getFileName(qualification.marksheet)}
+                      </small>
+                    </div>
                   )}
                 </div>
               </div>
@@ -476,9 +560,11 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
             />
           )}
           {getFileName(data.citizenshipUpload) && (
-            <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
-              ✓ {getFileName(data.citizenshipUpload)}
-            </small>
+            <div style={{ marginTop: '5px' }}>
+              <small style={{ color: '#4caf50', display: 'block', fontWeight: 'bold' }}>
+                {getFileName(data.citizenshipUpload)}
+              </small>
+            </div>
           )}
           {!getFileName(data.citizenshipUpload) && (
             <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
@@ -507,9 +593,11 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
             />
           )}
           {getFileName(data.signatureUpload) && (
-            <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
-              ✓ {getFileName(data.signatureUpload)}
-            </small>
+            <div style={{ marginTop: '5px' }}>
+              <small style={{ color: '#4caf50', display: 'block', fontWeight: 'bold' }}>
+                {getFileName(data.signatureUpload)}
+              </small>
+            </div>
           )}
           {!getFileName(data.signatureUpload) && (
             <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
@@ -527,9 +615,11 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
             className="form-input"
           />
           {getFileName(data.characterCertificateUpload) && (
-            <small style={{ color: '#4caf50', marginTop: '5px', display: 'block', fontWeight: 'bold' }}>
-              ✓ {getFileName(data.characterCertificateUpload)}
-            </small>
+            <div style={{ marginTop: '5px' }}>
+              <small style={{ color: '#4caf50', display: 'block', fontWeight: 'bold' }}>
+                {getFileName(data.characterCertificateUpload)}
+              </small>
+            </div>
           )}
           {!getFileName(data.characterCertificateUpload) && (
             <small style={{ color: '#666', marginTop: '5px', display: 'block' }}>
@@ -538,7 +628,8 @@ const AcademicDetailsSection = ({ data, onChange, errors = [] }: AcademicDetails
           )}
         </div>
       </div>
-    </div>
+    {/* Preview modal removed as requested */}
+  </div>
   );
 };
 

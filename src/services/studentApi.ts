@@ -5,6 +5,18 @@ import { API_BASE_URL } from '../config';
  * Enum mappings for backend compatibility
  */
 const enumMappings = {
+    disabilityType: {
+      'None': 'None',
+      'Visual': 'VisualImpairment',
+      'VisualImpairment': 'VisualImpairment',
+      'Hearing': 'HearingImpairment',
+      'HearingImpairment': 'HearingImpairment',
+      'Physical': 'MobilityImpairment',
+      'MobilityImpairment': 'MobilityImpairment',
+      'Cognitive': 'CognitiveImpairment',
+      'CognitiveImpairment': 'CognitiveImpairment',
+      'Other': 'Other',
+    },
   gender: {
     'Male': 'Male',
     'Female': 'Female',
@@ -252,24 +264,26 @@ const enumMappings = {
     'Car': 'PrivateVehicle',
     'Motorcycle': 'PrivateVehicle',
   },
+  annualIncome: {
+    'Less than 5 Lakh': 'LessThan5Lakh',
+    'LessThan5Lakh': 'LessThan5Lakh',
+    '<5 Lakh': 'LessThan5Lakh',
+    '5-10 Lakh': 'Between5And10Lakh',
+    'Between5And10Lakh': 'Between5And10Lakh',
+    '5 to 10 Lakh': 'Between5And10Lakh',
+    '10-20 Lakh': 'Between10And20Lakh',
+    'Between10And20Lakh': 'Between10And20Lakh',
+    '10 to 20 Lakh': 'Between10And20Lakh',
+    'More than 20 Lakh': 'MoreThan20Lakh',
+    'MoreThan20Lakh': 'MoreThan20Lakh',
+    '>20 Lakh': 'MoreThan20Lakh',
+    'Prefer not to specify': '',
+  },
 };
 
 /**
  * Convert File to Base64 string
  */
-/**
- * Get document type from field name
- */
-function getDocumentType(fieldName: string): string {
-  const mapping: Record<string, string> = {
-    'profileImage': 'Photo',
-    'citizenshipFrontUpload': 'Citizenship',
-    'citizenshipBackUpload': 'Citizenship',
-    'signatureUpload': 'Signature',
-    'characterCertificateUpload': 'CharacterCertificate',
-  };
-  return mapping[fieldName] || 'Other';
-}
 function mapEnumValue(backendField: keyof typeof enumMappings, frontendValue: string): string {
   const mapping = enumMappings[backendField] as Record<string, string>;
   const mapped = mapping[frontendValue];
@@ -429,35 +443,49 @@ async function transformFormDataToDTO(formData: StudentEnrollmentForm) {
         mobileNumber: formData.parentGuardianDetails.mother.mobileNumber,
         gardianEmail: formData.parentGuardianDetails.mother.email || '',
       },
-      ...formData.parentGuardianDetails.legalGuardians.map((guardian) => ({
-        parentType: mapEnumValue('gardianType', guardian.relation),
-        fullName: guardian.fullName,
-        occupation: guardian.occupation || '',
-        designation: '',
-        organization: '',
-        mobileNumber: guardian.mobileNumber,
-        gardianEmail: guardian.email || '',
-      })),
+      ...formData.parentGuardianDetails.legalGuardians
+        .filter((guardian) => guardian.fullName && guardian.mobileNumber && guardian.occupation) // Only include complete guardians
+        .map((guardian) => {
+          return {
+            parentType: 'Guardian',
+            fullName: guardian.fullName,
+            occupation: guardian.occupation || '',
+            designation: '',
+            organization: '',
+            mobileNumber: guardian.mobileNumber,
+            gardianEmail: guardian.email || '',
+            annualFamilyIncome: mapEnumValue('annualIncome', formData.parentGuardianDetails.annualFamilyIncome || ''),
+          };
+        }),
     ],
 
     // Disability Details
-    disabilityDetails: formData.personalDetails.disabilityStatus === 'Yes'
+    disabilityDetails: formData.personalDetails.disabilityType || formData.personalDetails.disabilityPercentage
       ? [
           {
-            disabilityType: formData.personalDetails.disabilityType || 'None',
+            disabilityType: mapEnumValue('disabilityType', formData.personalDetails.disabilityType || 'None'),
             disabilityPercentage: formData.personalDetails.disabilityPercentage || 0,
           },
         ]
       : [],
 
     // Academic History
-    academicHistories: formData.academicDetails.previousHistory.map((history) => ({
-      qualification: mapEnumValue('qualification', history.qualification),
-      boardOrUniversity: history.boardUniversity,
-      institutionName: history.institutionName,
-      passedYear: parseInt(history.passedYear, 10),
-      divisionOrGPA: history.divisionGPA,
-    })),
+    academicHistories: formData.academicDetails.previousHistory
+      .filter((history) => history.qualification && history.institutionName) // Only include complete entries
+      .map((history) => {
+        const mappedQual = mapEnumValue('qualification', history.qualification);
+        // Ensure qualification is one of the valid enum values
+        const validQualifications = ['SEE', 'SLC', 'PlusTwo', 'Bachelor', 'Master', 'PhD', 'Other'];
+        const finalQual = validQualifications.includes(mappedQual) ? mappedQual : 'Other';
+        
+        return {
+          qualification: finalQual,
+          boardOrUniversity: history.boardUniversity,
+          institutionName: history.institutionName,
+          passedYear: parseInt(history.passedYear, 10),
+          divisionOrGPA: history.divisionGPA,
+        };
+      }),
 
     // Extracurricular Details
     extracurricularDetails: [
@@ -518,7 +546,7 @@ async function uploadStudentFiles(pid: string, filesToUpload: any) {
 
     // Only upload if there are files
     let hasFiles = false;
-    for (const [key, value] of formData.entries()) {
+    for (const [_, value] of formData.entries()) {
       if (value instanceof File) {
         hasFiles = true;
         break;
@@ -551,6 +579,64 @@ async function uploadStudentFiles(pid: string, filesToUpload: any) {
   } catch (error) {
     console.error('Error uploading files:', error);
     throw error;
+  }
+}
+
+/**
+ * Update existing student enrollment
+ * Similar to registration but uses PUT endpoint
+ */
+export async function updateStudentEnrollment(formData: StudentEnrollmentForm, studentPid: string) {
+  try {
+    // Step 1: Transform form data and extract files
+    const { dtoData, filesToUpload } = await transformFormDataToDTO(formData);
+
+    console.log('=== STEP 1: UPDATING STUDENT ===');
+    console.log(JSON.stringify(dtoData, null, 2));
+
+    // Update student
+    const updateResponse = await fetch(`${API_BASE_URL}/student/${studentPid}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dtoData),
+    });
+
+    const updateData = await updateResponse.json();
+
+    if (!updateResponse.ok) {
+      console.error('Backend validation errors:', updateData);
+      throw new Error(
+        updateData.message || `Server error: ${updateResponse.status}`
+      );
+    }
+
+    console.log('✓ Student updated successfully with PID:', studentPid);
+
+    // Step 2: Upload files if any exist
+    let uploadResult = null;
+    if (filesToUpload && (
+      filesToUpload.profileImage || 
+      filesToUpload.citizenship || 
+      filesToUpload.signature || 
+      filesToUpload.characterCertificate || 
+      filesToUpload.marksheets?.length > 0
+    )) {
+      console.log('=== STEP 2: UPLOADING FILES ===');
+      uploadResult = await uploadStudentFiles(studentPid, filesToUpload);
+    }
+
+    return {
+      success: true,
+      data: updateData.data,
+      uploadResult,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'An unknown error occurred',
+    };
   }
 }
 
@@ -617,3 +703,4 @@ export async function submitStudentEnrollment(formData: StudentEnrollmentForm) {
     };
   }
 }
+

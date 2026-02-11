@@ -23,7 +23,6 @@ export interface PersonalDetails {
   maritalStatus?: string;
   religion?: string;
   ethnicity: string;
-  disabilityStatus: string;
   disabilityType?: string;
   disabilityPercentage?: number;
 }
@@ -51,8 +50,7 @@ export interface AddressDetails {
 export interface LegalGuardian {
   id: string;
   fullName: string;
-  relation: string;
-  occupation?: string;
+  occupation: string;
   mobileNumber: string;
   email?: string;
 }
@@ -101,9 +99,9 @@ export interface AcademicDetails {
     academicStatus: string;
   };
   previousHistory: AcademicQualification[];
-  citizenshipUpload: File;
-  signatureUpload: File;
-  characterCertificateUpload?: File;
+  citizenshipUpload?: File | string;
+  signatureUpload?: File | string;
+  characterCertificateUpload?: File | string;
 }
 
 export interface FinancialDetails {
@@ -130,7 +128,6 @@ export interface Award {
 export interface ExtracurricularDetails {
   interests: string[];
   otherInterestDetails?: string;
-  previousAwards: Award[];
   hostellerStatus: string;
   transportationMethod: string;
 }

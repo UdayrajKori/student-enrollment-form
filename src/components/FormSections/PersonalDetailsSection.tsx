@@ -13,18 +13,65 @@ interface PersonalDetailsSectionProps {
 
 const PersonalDetailsSection = ({ data, onChange, errors = [] }: PersonalDetailsSectionProps) => {
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageLoadError, setImageLoadError] = useState(false);
   const stepKey = 'personal';
+
+  // Log incoming data for debugging
+  useEffect(() => {
+    console.log('📨 [PersonalDetailsSection] Received data:', data);
+    console.log(`   ✅ firstName: "${data.firstName}"`);
+    console.log(`   ✅ gender: "${data.gender}"`);
+    console.log(`   ✅ bloodGroup: "${data.bloodGroup}" (TYPE: ${typeof data.bloodGroup})`);
+    console.log(`   ✅ citizenshipNumber: "${data.citizenshipNumber}"`);
+    console.log(`   ✅ maritalStatus: "${data.maritalStatus}"`);
+    console.log(`   ✅ religion: "${data.religion}"`);
+    console.log(`   ✅ ethnicity: "${data.ethnicity}"`);
+    console.log('   ♿ DISABILITY FIELDS:');
+    console.log(`      disabilityType: "${data.disabilityType}" (TYPE: ${typeof data.disabilityType})`);
+    console.log(`      disabilityPercentage: "${data.disabilityPercentage}" (TYPE: ${typeof data.disabilityPercentage})`);
+    console.log(`   ✅ emergencyContactName: "${data.emergencyContactName}"`);
+  }, []);
 
   // Recreate preview when data.profileImage exists
   useEffect(() => {
+    console.log('🖼️ Checking for image in profileImage:', data.profileImage);
+    setImageLoadError(false);
+    
     if (data.profileImage instanceof File) {
+      console.log('✅ Found File object, creating preview');
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        const result = reader.result as string;
+        console.log('📸 File preview created');
+        setImagePreview(result);
       };
       reader.readAsDataURL(data.profileImage);
+    } else if (typeof data.profileImage === 'string' && (data.profileImage as string).trim()) {
+      // Handle string URLs or paths from API
+      const imageStr = data.profileImage as string;
+      console.log('✅ Found image URL/path:', imageStr);
+      let imageUrl: string | null = null;
+      
+      if (imageStr.startsWith('http')) {
+        // Already a full URL
+        imageUrl = imageStr;
+      } else if (imageStr.startsWith('/')) {
+        // Absolute path
+        imageUrl = imageStr;
+      } else {
+        // Relative path - assume it's in the Uploads folder
+        imageUrl = `https://localhost:7257/Uploads/${imageStr}`;
+      }
+      
+      console.log('🔗 Constructed image URL:', imageUrl);
+      setImagePreview(imageUrl);
     }
   }, [data.profileImage]);
+
+  const handleImageError = () => {
+    console.warn('❌ Failed to load image from URL:', imagePreview);
+    setImageLoadError(true);
+  };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -75,8 +122,13 @@ const PersonalDetailsSection = ({ data, onChange, errors = [] }: PersonalDetails
               className="image-input"
             />
             <label htmlFor="profileImage" className="image-upload-label">
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="image-preview" />
+              {imagePreview && !imageLoadError ? (
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="image-preview"
+                  onError={handleImageError}
+                />
               ) : (
                 <div className="image-placeholder">
                   <span>Click to upload (PNG, JPG)</span>
@@ -547,57 +599,36 @@ const PersonalDetailsSection = ({ data, onChange, errors = [] }: PersonalDetails
         </div>
       </div>
 
-      {/* Disability Status */}
+      {/* Disability Information */}
       <div className="form-section-divider">Disability Information</div>
 
       <div className="form-row">
         <div className="form-group">
-          <label className="form-label">Disability Status</label>
-          <select
-            name="disabilityStatus"
-            value={data.disabilityStatus || 'None'}
+          <label className="form-label">Disability Type</label>
+          <input
+            type="text"
+            name="disabilityType"
+            value={data.disabilityType || ''}
             onChange={handleInputChange}
+            placeholder="Specify disability type"
             className="form-input"
-          >
-            <option value="None">None</option>
-            <option value="Physical">Physical</option>
-            <option value="Visual">Visual</option>
-            <option value="Hearing">Hearing</option>
-            <option value="Other">Other</option>
-          </select>
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Disability Percentage</label>
+          <input
+            type="number"
+            name="disabilityPercentage"
+            value={data.disabilityPercentage || ''}
+            onChange={handleInputChange}
+            min="0"
+            max="100"
+            placeholder="Enter percentage"
+            className="form-input"
+          />
         </div>
       </div>
-
-      {/* Conditional Disability Fields */}
-      {data.disabilityStatus && data.disabilityStatus !== 'None' && (
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">Disability Type</label>
-            <input
-              type="text"
-              name="disabilityType"
-              value={data.disabilityType || ''}
-              onChange={handleInputChange}
-              placeholder="Specify disability type"
-              className="form-input"
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Disability Percentage</label>
-            <input
-              type="number"
-              name="disabilityPercentage"
-              value={data.disabilityPercentage || ''}
-              onChange={handleInputChange}
-              min="0"
-              max="100"
-              placeholder="Enter percentage"
-              className="form-input"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

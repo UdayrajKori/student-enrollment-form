@@ -94,6 +94,8 @@ export async function deleteStudent(pid: string): Promise<boolean> {
 export async function getStudentDetails(pid: string): Promise<any> {
   try {
     const url = `${API_BASE_URL}/Student/${pid}`;
+    console.log('🔍 Fetching student details from:', url);
+    
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -101,19 +103,29 @@ export async function getStudentDetails(pid: string): Promise<any> {
       },
     });
 
+    console.log('📊 Response status:', response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Error response:', errorText);
       throw new Error(`Failed to fetch student details: ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log('Student details response:', data);
+    console.log('📦 Full API response:', JSON.stringify(data, null, 2));
     
     // The API might return data in data.data or data.Data
-    const student = data.data || data.Data || null;
-    console.log('Student details:', student);
+    const student = data.data || data.Data || data;
+    console.log('✅ Extracted student data:', JSON.stringify(student, null, 2));
+    
+    if (!student || Object.keys(student).length === 0) {
+      console.warn('⚠️ No student data found in response');
+      return null;
+    }
+    
     return student;
   } catch (error) {
-    console.error('Error fetching student details:', error);
+    console.error('❌ Error fetching student details:', error);
     return null;
   }
 }

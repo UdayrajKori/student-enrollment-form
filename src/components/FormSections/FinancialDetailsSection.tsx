@@ -76,9 +76,17 @@ const FinancialDetailsSection = ({ data, onChange, errors = [] }: FinancialDetai
                 className={`form-input ${hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipType') ? 'error' : ''}`}
               >
                 <option value="">-- Select Type --</option>
-                {scholarshipTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
+                {/* Always show API value if not in static list */}
+                {(() => {
+                  let types = [...scholarshipTypes];
+                  const apiType = data.scholarshipDetails?.scholarshipType;
+                  if (apiType && !types.includes(apiType)) {
+                    types = [apiType, ...types];
+                  }
+                  return types.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ));
+                })()}
               </select>
               {hasStepFieldError(errors, stepKey, 'scholarshipDetails.scholarshipType') && (
                 <ValidationErrorDisplay 
@@ -205,8 +213,7 @@ const FinancialDetailsSection = ({ data, onChange, errors = [] }: FinancialDetai
                 Bank Name
                 <span className="required">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 value={data.bankDetails?.bankName || ''}
                 onChange={(e) => {
                   const updatedBank = {
@@ -215,10 +222,18 @@ const FinancialDetailsSection = ({ data, onChange, errors = [] }: FinancialDetai
                   } as any;
                   onChange('bankDetails', updatedBank);
                 }}
-                placeholder="e.g., Nepal Bank Limited, Himalayan Bank"
                 required
                 className={`form-input ${hasStepFieldError(errors, stepKey, 'bankDetails.bankName') ? 'error' : ''}`}
-              />
+              >
+                <option value="">-- Select Bank --</option>
+                <option value="NabilBank">Nabil Bank</option>
+                <option value="EverestBank">Everest Bank</option>
+                <option value="HimalayanBank">Himalayan Bank</option>
+                <option value="StandardChartered">Standard Chartered</option>
+                <option value="NICAsia">NIC Asia</option>
+                <option value="SiddharthaBank">Siddhartha Bank</option>
+                <option value="Other">Other</option>
+              </select>
               {hasStepFieldError(errors, stepKey, 'bankDetails.bankName') && (
                 <ValidationErrorDisplay 
                   error={getStepFieldError(errors, stepKey, 'bankDetails.bankName')} 
